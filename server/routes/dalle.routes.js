@@ -1,46 +1,37 @@
-import express, { Router } from 'express';
-import dotenv from 'dotenv';
-import { OpenAI } from 'openai';
+import express from 'express';
+import * as dotenv from 'dotenv';
+import OpenAI from 'openai';
 
 dotenv.config();
 
-const app = express();
-const port = 3000;
-
-app.use(express.json());
-
+const router = express.Router();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseApiUrl: 'https://api.openai.com',
 });
 
-app.get('/', (req, res) => {
+router.route('/').get((req, res) => {
   res.status(200).json({ message: "Hello from DALL.E ROUTES" });
 });
 
-app.post('/', async (req, res) => {
+router.route('/').post(async (req, res) => {
   try {
     const { prompt } = req.body;
 
     const response = await openai.images.create({
       prompt,
       n: 1,
-      size: '1024px*1024px',
-      responseType: 'url',
+      size: '1024x1024',
+      response_format: 'b64_json'
     });
 
-    const imageUrl = response.data.images[0].url;
+    const image = response.data.data[0].b64_json;
 
-    res.status(200).json({ photoUrl: imageUrl });
+    res.status(200).json({ photo: image });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-export default Router;
+export default router;
