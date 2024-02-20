@@ -93,3 +93,9 @@ input[type="file"] {
 
 
 
+a.link {
+
+  color: red;
+  font-weight: 800;
+
+}
